@@ -28,24 +28,26 @@ class EventosController extends CI_Controller {
 
 	public function criarEvento(){
 		if(esta_logado()){
-			$evento = $this->input->post('evento');	
-			
+			$evento = $this->input->post('evento');
+
+            $layout = $_FILES['layout_evento'];
+            $id_usuario_criador = $this->session->userdata("usuario_logado")['usuario']['id_usuario'];
+            $nome_imagem = padronizarNomeImagem($layout, $id_usuario_criador);
+            $configuracao = array(
+                'upload_path'   => './uploads/',
+                'allowed_types' => 'jpg|jpeg|png',
+                'file_name'     => ''.$nome_imagem
+            );
+
+            $this->upload->initialize($configuracao);
+
+            if (!$this->upload->do_upload('layout_evento')){
+                echo $this->upload->display_errors();
+            }
+
+            $evento["layout_evento"] = ''.$nome_imagem;
+
 			if ($this->EventosModel->criarEvento($evento)) {
-				$layout = $_FILES['layout_evento'];
-				$id_usuario_criador = $this->session->userdata("usuario_logado")['usuario']['id_usuario'];
-				$nome_imagem = padronizarNomeImagem($layout, $id_usuario_criador);
-				$configuracao = array(
-			        'upload_path'   => './uploads/',
-			        'allowed_types' => 'jpg|jpeg|png',
-			        'file_name'     => ''.$nome_imagem
-			     );  
-				$this->upload->initialize($configuracao);
-			    if (!$this->upload->do_upload('layout_evento')){
-			        echo $this->upload->display_errors();
-			    }
-				$layout = array(
-					"layout_evento" => ''.$nome_imagem
-				);
 				$this->session->set_flashdata("success", "Evento criado com sucesso!");
 				$id_evento_criado = $this->db->insert_id(); // retorna o ultimo id inserido;
 				$this->detalharEvento($id_evento_criado);
