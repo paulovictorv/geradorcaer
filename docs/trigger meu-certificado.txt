@@ -1,0 +1,52 @@
+
+INSERT INTO `meu_certificado_db`.`tipos_usuarios` (`id_tipo_usuario`, `descricao_tipo_usuario`) VALUES ('1', 'Administrador');
+INSERT INTO `meu_certificado_db`.`tipos_usuarios` (`id_tipo_usuario`, `descricao_tipo_usuario`) VALUES ('2', 'Coordenação');
+INSERT INTO `meu_certificado_db`.`tipos_usuarios` (`id_tipo_usuario`, `descricao_tipo_usuario`) VALUES ('3', 'Participante');
+INSERT INTO `meu_certificado_db`.`usuarios` (`id_usuario`, `senha_usuario`, `nome_usuario`, `cpf_usuario`, `email_usuario`, `tipo_usuario`) VALUES ('1', '8fcc2afa03192b54647298a1abdc9d12ae1076b5597f3f62ae18c1f4fa90d3275468cef3694f0f7ac78a5fc34f0eb6b75614147c2bf65624c570cf29708dbccc', 'Antoni Sganzerla', '000.333.222-61', 'antonisganzerla@gmail.com', '1');
+
+
+DELIMITER $$
+    
+	CREATE TRIGGER atualiza_ultimo_cadastro
+    
+		BEFORE INSERT ON EVENTOS
+		
+	
+			FOR EACH ROW BEGIN
+		
+				UPDATE ultimo_cadastro SET id_evento = id_evento + 1;
+	
+		END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+    
+	CREATE TRIGGER decrementa_numero_participantes_evento
+    
+		BEFORE DELETE ON evento_participante
+		
+			FOR EACH ROW BEGIN
+				UPDATE eventos SET num_participantes = num_participantes - 1
+                	WHERE id_evento = OLD.id_evento;
+	
+		END$$
+
+DELIMITER ;
+
+DELIMITER $$
+    
+	CREATE TRIGGER incrementa_numero_participantes_evento
+    
+		BEFORE INSERT ON evento_participante
+		
+			FOR EACH ROW BEGIN
+				UPDATE eventos SET num_participantes = num_participantes + 1
+                	WHERE id_evento = NEW.id_evento;
+	
+		END$$
+
+DELIMITER ;
+
+
